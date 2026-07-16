@@ -7,10 +7,10 @@ question.
 
 ## Two ways to play (pick one on the start screen)
 
-- **Play automatically** — it runs on a timer: a pause to think on each
+- **Play automatically**: it runs on a timer, with a pause to think on each
   question, then the answer, then a photo, all on its own. Good for hands-off.
-- **I'll tap to advance** — nothing moves until you tap. You control the
-  pacing: tap for the answer, tap for the photo, tap for the next question.
+- **I'll tap to advance**: nothing moves until you tap. You control the
+  pacing, so tap for the answer, tap for the photo, tap for the next question.
   Great for running it from your phone.
 
 ## How to run it at the party

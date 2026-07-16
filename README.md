@@ -41,18 +41,36 @@ You can also **click / tap** anywhere to jump to the next slide.
 To edit or add questions, open `index.html` and look for the `QUESTIONS`
 list near the top of the `<script>` section.
 
-## Adding your family photos
+## Your family photos
 
-Photos appear between the questions. See **`photos.js`** for full
-instructions. In short:
+The 100 photos from your Google Drive folder **Wickerson_Anniversary_Pics**
+are already listed in **`photos.js`** and are spread evenly between the
+questions. For each photo the game tries, automatically:
 
-1. Put your image files in the **`photos/`** folder.
-2. List them in `photos.js`, one line each:
-   ```js
-   { src:"photos/wedding-1966.jpg", caption:"June 1966" },
-   ```
-3. Save and reload `index.html`. The game spreads however many photos you
-   add evenly across the game, so 5 photos or 60 both work.
+1. a **local copy** in the `photos/` folder (best: works fully offline), then
+2. a **live Google Drive link** if the local copy isn't there (needs internet).
+
+If a photo can't load either way, it's quietly skipped and the trivia carries on.
+
+### Recommended for the party: download them so it runs offline
+
+1. In Google Drive, open the **Wickerson_Anniversary_Pics** folder.
+2. Select all photos and choose **Download** (Drive gives you a zip).
+3. Unzip and drop the image files into the **`photos/`** folder next to
+   `index.html`, keeping their original names.
+
+That's it. No internet needed on the night.
+
+### Or use the live links (no download)
+
+In Drive, set the folder's sharing to **"Anyone with the link → Viewer"**, and
+make sure the projector laptop has internet. The photos will stream from Drive.
+
+### Trimming or reordering
+
+100 photos is a lot (roughly two or three after every question). To use fewer,
+just delete lines in `photos.js`. You can also reorder lines, or add a caption
+between the quotes, e.g. `caption:"The wedding, 1966"`.
 
 ## Adjusting the timing
 
@@ -62,7 +80,7 @@ Open `index.html` and edit the `CONFIG` block at the top of the script:
 const CONFIG = {
   thinkSeconds:  20,  // seconds to think about each question
   answerSeconds:  9,  // seconds the answer stays up
-  photoSeconds:   8,  // seconds each photo stays up
+  photoSeconds:   6,  // seconds each photo stays up
   titleAutostart: 0,  // 0 = wait for the Start button; e.g. 5 = auto-start
 };
 ```

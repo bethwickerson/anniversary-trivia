@@ -280,7 +280,7 @@
 const CONFIG = {
   thinkSeconds:  20,   // time to think about each question
   answerSeconds:  9,   // time the answer stays on screen
-  photoSeconds:   8,   // time each family photo stays on screen
+  photoSeconds:   6,   // time each family photo stays on screen
   titleAutostart: 0,   // 0 = wait for Start click; >0 = auto-start after N seconds
 };
 
@@ -451,20 +451,45 @@ function renderAnswer(item){
     </div>`;
 }
 
+/* Build the list of URLs to try for one photo, in order:
+   1. local file in photos/   2. live Google Drive link   */
+function photoSources(d){
+  if(d.src) return [d.src];
+  const list = [];
+  if(d.file) list.push('photos/' + d.file);
+  if(d.id)   list.push('https://drive.google.com/thumbnail?id=' + d.id + '&sz=w1920');
+  return list;
+}
+
 function renderPhoto(item){
   topbar.classList.remove('hidden');
-  const {src,caption} = item.data;
+  const d = item.data;
+  const caption = d.caption || '';
+  const srcs = photoSources(d);
   counterEl.textContent = `A Family Memory`;
   const cap = caption ? `<div class="photo-caption">${esc(caption)}</div>` : '';
   stage.innerHTML = `
     <div class="card photo-card">
       <div class="photo-frame">
-        <img src="${encodeURI(src)}" alt="${esc(caption||'Family photo')}"
-             onerror="this.parentElement.outerHTML='<div class=&quot;photo-placeholder&quot;>Family photo will appear here<br><small>('+this.getAttribute('data-src')+')</small></div>'"
-             data-src="${esc(src)}">
+        <img id="pimg" alt="${esc(caption||'Wickerson family photo')}">
       </div>
       ${cap}
     </div>`;
+  const img = document.getElementById('pimg');
+  if(!srcs.length){ onPhotoFail(item); return; }
+  let tryIdx = 0;
+  img.onerror = () => {
+    tryIdx++;
+    if(tryIdx < srcs.length){ img.src = encodeURI(srcs[tryIdx]); }
+    else { onPhotoFail(item); }
+  };
+  img.src = encodeURI(srcs[0]);
+}
+
+/* A photo couldn't be loaded from any source: skip it so the
+   trivia keeps flowing (only skips while playing, not when paused). */
+function onPhotoFail(item){
+  if(!paused) show(pos+1);
 }
 
 function renderPlaceholderPhoto(n){

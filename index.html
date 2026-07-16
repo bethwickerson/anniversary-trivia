@@ -72,7 +72,7 @@
   }
   #topbar .names{font-variant:small-caps;letter-spacing:.2em}
   #progress-wrap{
-    position:fixed;bottom:min(4.2vh,36px);left:0;right:0;
+    position:fixed;top:min(1.8vh,14px);left:0;right:0;
     display:flex;justify-content:center;gap:0;z-index:5;pointer-events:none;
   }
   #progress{
@@ -253,6 +253,31 @@
   }
   #toast.show{opacity:1}
 
+  /* ---- on-screen controls (great for tapping on a phone) ---- */
+  #controls{
+    position:fixed;bottom:min(4vh,30px);left:50%;transform:translateX(-50%);
+    display:none;gap:clamp(14px,2vw,24px);z-index:15;
+  }
+  body.playing #controls{display:flex}
+  #controls button{
+    -webkit-appearance:none;appearance:none;
+    width:clamp(52px,6.5vw,68px);height:clamp(52px,6.5vw,68px);
+    border-radius:50%;border:1.5px solid rgba(232,196,119,.55);
+    background:rgba(9,22,36,.55);color:var(--gold);
+    font-family:"Helvetica Neue",Arial,sans-serif;font-size:clamp(20px,2.6vw,28px);line-height:1;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(4px);transition:transform .12s ease,background .12s ease;
+  }
+  #controls button:hover{background:rgba(232,196,119,.18)}
+  #controls button:active{transform:scale(.92)}
+  #controls button:focus-visible{outline:3px solid var(--cream);outline-offset:2px}
+
+  .startrow{display:flex;gap:clamp(12px,2vw,20px);flex-wrap:wrap;justify-content:center;margin-top:clamp(30px,5vh,60px)}
+  .startrow .startbtn{margin-top:0}
+  .startbtn.ghost{background:transparent;color:var(--gold);border:2px solid var(--gold);box-shadow:none}
+  .startbtn.ghost:hover{background:rgba(232,196,119,.12)}
+  .tap-hint{margin-top:clamp(26px,4.6vh,56px);font-family:"Helvetica Neue",Arial,sans-serif;font-size:clamp(14px,1.7vw,22px);letter-spacing:.14em;text-transform:uppercase;color:var(--gold);opacity:.8}
+
   .hidden{display:none!important}
 </style>
 </head>
@@ -269,6 +294,12 @@
 
   <div id="pause">Paused &middot; press Space to resume</div>
   <div id="toast"></div>
+
+  <div id="controls">
+    <button id="cprev" aria-label="Back">&larr;</button>
+    <button id="cpause" aria-label="Pause or resume">&#10074;&#10074;</button>
+    <button id="cnext" aria-label="Next">&rarr;</button>
+  </div>
 
 <script src="photos.js"></script>
 <script>
@@ -379,9 +410,13 @@ const counterEl  = document.getElementById('counter');
 const progWrap   = document.getElementById('progress-wrap');
 const progFill   = document.getElementById('progress-fill');
 const toastEl    = document.getElementById('toast');
+const cprev      = document.getElementById('cprev');
+const cpause     = document.getElementById('cpause');
+const cnext      = document.getElementById('cnext');
 
 let SEQUENCE = [];
 let pos = -1;            // index into SEQUENCE (-1 = title)
+let mode = 'auto';       // 'auto' = timed; 'manual' = tap to advance
 let paused = false;
 let timer = null;        // setTimeout handle for auto-advance
 let ringRAF = null;      // requestAnimationFrame for countdown ring
@@ -403,12 +438,16 @@ function renderTitle(){
       <h1>Peter <span class="amp">&amp;</span> Marilyn<br>Wickerson</h1>
       <div class="years">60</div>
       <div class="sub">Years of Marriage &middot; 1966 to 2026</div>
-      <button class="startbtn" id="startbtn">Start the Trivia</button>
+      <div class="startrow">
+        <button class="startbtn" id="startAuto">Play automatically</button>
+        <button class="startbtn ghost" id="startManual">I&rsquo;ll tap to advance</button>
+      </div>
       <div class="controls-hint">
-        Plays automatically &middot; <kbd>Space</kbd> pause/resume &nbsp; <kbd>&larr;</kbd>/<kbd>&rarr;</kbd> back/skip &nbsp; <kbd>A</kbd> reveal answer &nbsp; <kbd>F</kbd> full screen &nbsp; <kbd>R</kbd> restart
+        Tap the screen or the <kbd>&rarr;</kbd> button to advance &nbsp; <kbd>&larr;</kbd> back &nbsp; <kbd>Space</kbd> pause &nbsp; <kbd>F</kbd> full screen &nbsp; <kbd>R</kbd> restart
       </div>
     </div>`;
-  document.getElementById('startbtn').addEventListener('click', start);
+  document.getElementById('startAuto').addEventListener('click', ()=>start('auto'));
+  document.getElementById('startManual').addEventListener('click', ()=>start('manual'));
 }
 
 function renderQuestion(item){
@@ -416,21 +455,24 @@ function renderQuestion(item){
   progWrap.classList.remove('hidden');
   const {c,q} = item.data;
   counterEl.textContent = `Question ${item.index+1} of ${totalQuestions}`;
-  stage.innerHTML = `
-    <div class="card">
-      <span class="badge ${c}">${esc(CAT_LABEL[c])}</span>
-      <span class="qnum">Question ${item.index+1}</span>
-      <div class="question">${esc(q)}</div>
-      <div id="think">
+  const thinkBlock = (mode==='auto')
+    ? `<div id="think">
         <svg class="ring" width="110" height="110" viewBox="0 0 110 110">
           <circle class="track" cx="55" cy="55" r="48" fill="none" stroke-width="8"/>
           <circle class="bar"   cx="55" cy="55" r="48" fill="none" stroke-width="8"
                   stroke-dasharray="301.6" stroke-dashoffset="0" id="ringbar"/>
         </svg>
-        <div class="hint">Think…</div>
-      </div>
+        <div class="hint">Think&hellip;</div>
+      </div>`
+    : `<div class="tap-hint">Tap for the answer &rsaquo;</div>`;
+  stage.innerHTML = `
+    <div class="card">
+      <span class="badge ${c}">${esc(CAT_LABEL[c])}</span>
+      <span class="qnum">Question ${item.index+1}</span>
+      <div class="question">${esc(q)}</div>
+      ${thinkBlock}
     </div>`;
-  startRing(CONFIG.thinkSeconds*1000);
+  if(mode==='auto') startRing(CONFIG.thinkSeconds*1000);
 }
 
 function renderAnswer(item){
@@ -442,6 +484,7 @@ function renderAnswer(item){
       <div class="answer-label">The Answer</div>
       <div class="answer">${esc(a)}</div>
       ${f ? `<div class="fact">${esc(f)}</div>` : ``}
+      ${mode==='manual' ? `<div class="tap-hint">Tap for the next &rsaquo;</div>` : ``}
     </div>`;
 }
 
@@ -539,7 +582,8 @@ function show(i){
   else { renderPhoto(item); dur = CONFIG.photoSeconds*1000; }
 
   updateProgress();
-  scheduleAdvance(dur);
+  if(mode==='auto') scheduleAdvance(dur);
+  else clearTimeout(timer);   // manual: wait for a tap
 }
 
 function scheduleAdvance(ms){
@@ -561,15 +605,21 @@ function updateProgress(){
 }
 
 /* ---------- Controls ---------- */
-function start(){
+function start(m){
+  mode = (m==='manual') ? 'manual' : 'auto';
+  document.body.classList.add('playing');
+  cpause.style.display = (mode==='auto') ? '' : 'none';
+  cpause.innerHTML = '&#10074;&#10074;';
   SEQUENCE = buildSequence();
   show(0);
 }
-function restart(){ pos=-1; paused=false; document.body.classList.remove('paused'); renderTitle(); }
+function restart(){ pos=-1; paused=false; document.body.classList.remove('paused','playing'); renderTitle(); }
 
 function togglePause(){
+  if(mode!=='auto') return;   // manual mode has no timer to pause
   paused = !paused;
   document.body.classList.toggle('paused', paused);
+  cpause.innerHTML = paused ? '&#9654;' : '&#10074;&#10074;';
   if(paused){
     clearTimeout(timer);
     cancelAnimationFrame(ringRAF);
@@ -623,11 +673,16 @@ document.addEventListener('keydown', (e)=>{
   }
 });
 
-/* Tap / click the stage to advance (handy on a touch screen) */
+/* Tap / click the stage to advance (handy on a phone or touch screen) */
 stage.addEventListener('click', (e)=>{
-  if(e.target.closest('#startbtn')) return;
+  if(e.target.closest('.startbtn')) return;   // let the start buttons do their thing
   if(pos>=0 && !paused) next();
 });
+
+/* On-screen control buttons */
+cprev.addEventListener('click', prev);
+cnext.addEventListener('click', next);
+cpause.addEventListener('click', ()=>{ if(pos>=0) togglePause(); });
 
 /* ---------- Boot ---------- */
 renderTitle();

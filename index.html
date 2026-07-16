@@ -452,12 +452,18 @@ function renderAnswer(item){
 }
 
 /* Build the list of URLs to try for one photo, in order:
-   1. local file in photos/   2. live Google Drive link   */
+   1. local file in photos/  (best: offline, never breaks)
+   2. Google Drive via lh3.googleusercontent (most reliable hotlink)
+   3. Google Drive thumbnail endpoint (backup)
+   The browser falls through the list on any load error.            */
 function photoSources(d){
   if(d.src) return [d.src];
   const list = [];
   if(d.file) list.push('photos/' + d.file);
-  if(d.id)   list.push('https://drive.google.com/thumbnail?id=' + d.id + '&sz=w1920');
+  if(d.id){
+    list.push('https://lh3.googleusercontent.com/d/' + d.id + '=w1920');
+    list.push('https://drive.google.com/thumbnail?id=' + d.id + '&sz=w1920');
+  }
   return list;
 }
 
@@ -477,6 +483,7 @@ function renderPhoto(item){
     </div>`;
   const img = document.getElementById('pimg');
   if(!srcs.length){ onPhotoFail(item); return; }
+  img.referrerPolicy = 'no-referrer';   // helps Google serve hotlinked images
   let tryIdx = 0;
   img.onerror = () => {
     tryIdx++;

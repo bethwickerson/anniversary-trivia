@@ -280,7 +280,7 @@
 const CONFIG = {
   thinkSeconds:  20,   // time to think about each question
   answerSeconds:  9,   // time the answer stays on screen
-  photoSeconds:   6,   // time each family photo stays on screen
+  photoSeconds:   8,   // time each family photo stays on screen
   titleAutostart: 0,   // 0 = wait for Start click; >0 = auto-start after N seconds
 };
 
@@ -344,7 +344,8 @@ const CAT_LABEL = {
 
 /* ---- Photos --------------------------------------------------
    window.PHOTOS is defined in photos.js as an array of
-   { src, caption }.  Missing images fall back to a placeholder.
+   { file, caption }.  One photo is shown after each question.
+   A photo that isn't in the photos/ folder is simply skipped.
 ----------------------------------------------------------------*/
 const PHOTOS = (window.PHOTOS && window.PHOTOS.length) ? window.PHOTOS : [];
 
@@ -355,23 +356,16 @@ const PHOTOS = (window.PHOTOS && window.PHOTOS.length) ? window.PHOTOS : [];
 function buildSequence(){
   const seq = [];
   const nQ = QUESTIONS.length;
-  const nP = PHOTOS.length;
-  // how many photos to drop after each question (spread evenly)
-  let photoIdx = 0;
+  // Show ONE family photo after each question (when one is listed for
+  // that slot). Photo i follows question i, so list them in the order
+  // you'd like them to appear. Extra photos beyond the number of
+  // questions are not shown.
   for(let i=0;i<nQ;i++){
     seq.push({type:'question', data:QUESTIONS[i], index:i});
     seq.push({type:'answer',   data:QUESTIONS[i], index:i});
-    // target cumulative photos shown after question i+1
-    const target = Math.round((i+1)/nQ * nP);
-    while(photoIdx < target){
-      seq.push({type:'photo', data:PHOTOS[photoIdx], index:photoIdx});
-      photoIdx++;
+    if(i < PHOTOS.length){
+      seq.push({type:'photo', data:PHOTOS[i], index:i});
     }
-  }
-  // any leftover photos
-  while(photoIdx < nP){
-    seq.push({type:'photo', data:PHOTOS[photoIdx], index:photoIdx});
-    photoIdx++;
   }
   return seq;
 }
@@ -451,20 +445,12 @@ function renderAnswer(item){
     </div>`;
 }
 
-/* Build the list of URLs to try for one photo, in order:
-   1. local file in photos/  (best: offline, never breaks)
-   2. Google Drive via lh3.googleusercontent (most reliable hotlink)
-   3. Google Drive thumbnail endpoint (backup)
-   The browser falls through the list on any load error.            */
+/* The photo file to show. Photos live locally in the photos/ folder
+   next to index.html, so it all runs offline with nothing to break. */
 function photoSources(d){
-  if(d.src) return [d.src];
-  const list = [];
-  if(d.file) list.push('photos/' + d.file);
-  if(d.id){
-    list.push('https://lh3.googleusercontent.com/d/' + d.id + '=w1920');
-    list.push('https://drive.google.com/thumbnail?id=' + d.id + '&sz=w1920');
-  }
-  return list;
+  if(d.src)  return [d.src];
+  if(d.file) return ['photos/' + d.file];
+  return [];
 }
 
 function renderPhoto(item){
@@ -483,7 +469,6 @@ function renderPhoto(item){
     </div>`;
   const img = document.getElementById('pimg');
   if(!srcs.length){ onPhotoFail(item); return; }
-  img.referrerPolicy = 'no-referrer';   // helps Google serve hotlinked images
   let tryIdx = 0;
   img.onerror = () => {
     tryIdx++;

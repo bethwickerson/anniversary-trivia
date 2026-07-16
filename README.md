@@ -43,34 +43,31 @@ list near the top of the `<script>` section.
 
 ## Your family photos
 
-The 100 photos from your Google Drive folder **Wickerson_Anniversary_Pics**
-are already listed in **`photos.js`** and are spread evenly between the
-questions. For each photo the game tries, automatically:
+The game shows **one family photo after each question** (40 questions, so up
+to 40 photos). Photos are loaded from local files in the **`photos/`** folder,
+so everything runs offline with nothing streaming from the web.
 
-1. a **local copy** in the `photos/` folder (best: works fully offline), then
-2. a **live Google Drive link** if the local copy isn't there (needs internet).
+### Adding the photos
 
-If a photo can't load either way, it's quietly skipped and the trivia carries on.
-
-### Recommended for the party: download them so it runs offline
-
-1. In Google Drive, open the **Wickerson_Anniversary_Pics** folder.
-2. Select all photos and choose **Download** (Drive gives you a zip).
-3. Unzip and drop the image files into the **`photos/`** folder next to
+1. In Google Drive, open the **Wickerson_Anniversary_Pics** folder and
+   **Download** the photos you want (Drive gives you a zip).
+2. Unzip and drop the image files into the **`photos/`** folder next to
    `index.html`, keeping their original names.
+3. Open **`photos.js`**. It already lists all 100 filenames from the folder.
+   Delete down to the ~40 you want, in the order you'd like them to appear.
+   Photo 1 shows after question 1, photo 2 after question 2, and so on.
 
 That's it. No internet needed on the night.
 
-### Or use the live links (no download)
+### Trimming, reordering and captions
 
-In Drive, set the folder's sharing to **"Anyone with the link → Viewer"**, and
-make sure the projector laptop has internet. The photos will stream from Drive.
-
-### Trimming or reordering
-
-100 photos is a lot (roughly two or three after every question). To use fewer,
-just delete lines in `photos.js`. You can also reorder lines, or add a caption
-between the quotes, e.g. `caption:"The wedding, 1966"`.
+- **Fewer photos:** delete lines in `photos.js`. Only the first 40 are shown
+  (one per question); anything beyond that is ignored.
+- **Reorder:** move lines up or down.
+- **Captions:** add text between the quotes, e.g.
+  `{ file:"IMG_6446.jpeg", caption:"The wedding, 1966" },`
+- A photo listed in `photos.js` but not found in the `photos/` folder is
+  simply skipped, so a typo or missing file won't break the game.
 
 ## Adjusting the timing
 

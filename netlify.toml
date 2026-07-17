@@ -1,0 +1,13 @@
+# Netlify configuration for the anniversary trivia game.
+# This is a plain static site (one HTML file plus photos), so there is
+# no build step: Netlify just publishes the repository root as-is.
+
+[build]
+  publish = "."
+  command = ""
+
+# Send visitors from the site root straight to the game.
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200

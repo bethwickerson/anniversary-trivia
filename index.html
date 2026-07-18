@@ -507,8 +507,8 @@ document.addEventListener('keydown', (e)=>{
       e.preventDefault();
       if(pos>=0) { togglePause(); toast(paused?'Paused':'Resumed'); }
       break;
-    case 'ArrowRight': e.preventDefault(); next(); break;
-    case 'ArrowLeft':  e.preventDefault(); prev(); break;
+    case 'ArrowRight': case 'PageDown': e.preventDefault(); next(); break;
+    case 'ArrowLeft':  case 'PageUp':   e.preventDefault(); prev(); break;
     case 'a': case 'A': revealAnswer(); break;
     case 'f': case 'F': toggleFullscreen(); break;
     case 'r': case 'R': restart(); break;

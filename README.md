@@ -11,22 +11,29 @@ each question and reveals the answer.
 - **I'll tap to advance**: nothing moves until you tap. You control the pacing,
   so tap for the answer, tap for the next question. Great from your phone.
 
-## How to run it at the party
+## How to run it at the party (laptop plus monitor)
 
-1. Copy this whole folder onto the device that drives the big screen.
-2. Double-click **`index.html`** and it opens in any web browser (Chrome, Edge,
-   Safari, Firefox). No internet needed.
-3. Pick **Play automatically** or **I'll tap to advance**, then press **`F`**
-   for full screen.
+1. Connect the laptop to the monitor or projector (usually HDMI) and set the
+   laptop's display to **Duplicate / Mirror** so both show the same thing.
+2. Copy this folder onto the laptop and double-click **`index.html`** to open it
+   in any web browser (Chrome, Edge, Safari, Firefox). No internet needed.
+3. Press **`F`** for full screen, then pick **Play automatically** or **I'll tap
+   to advance**. Drive it from the laptop with the arrow keys, `Space`, or the
+   on-screen buttons.
 
 > Tip: turn off the screen saver / sleep so the display doesn't dim mid-game.
 
-### Running it from your phone
+### Using a remote (optional)
 
-The game works on a phone browser too. To put it on the big screen while you
-control it from your hand, mirror your phone to the TV/projector (AirPlay to an
-Apple TV, a Chromecast, or a Lightning/USB-C-to-HDMI adapter), open the game on
-your phone, choose **I'll tap to advance**, and tap through at your own pace.
+A cheap **Bluetooth presentation clicker** works as a handheld remote: its
+forward/back buttons advance and go back, just like the arrow keys (the game
+also accepts the Page Up / Page Down keys clickers often send).
+
+### Running it from a phone instead
+
+If you'd rather run it on a phone, mirror the phone to the TV (AirPlay, a
+Chromecast, or a USB-C / Lightning-to-HDMI adapter), open the game on the phone,
+choose **I'll tap to advance**, and tap through at your own pace.
 
 ## Controls
 

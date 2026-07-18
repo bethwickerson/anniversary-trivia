@@ -322,13 +322,14 @@ const CONFIG = {
    fact is optional colour for the answer screen.
 ----------------------------------------------------------------*/
 const QUESTIONS = [
-  // ---------- The World in 1966 (the year they married) ----------
+  // All 1966 questions, mixed together; they play in this order.
   {c:'y1966', q:"In 1966 Peter and Marilyn were married. That same summer England won the World Cup, beating which country in the final?", a:"West Germany", f:"England won 4 to 2 at Wembley."},
   {c:'y1966', q:"Who was Canada's prime minister in 1966?", a:"Lester B. Pearson"},
   {c:'y1966', q:"Who was the U.S. president in 1966?", a:"Lyndon B. Johnson"},
   {c:'y1966', q:"Which sci-fi TV series first aired in September 1966?", a:"Star Trek"},
   {c:'y1966', q:"Which party game, played on a mat of big coloured dots, was released in 1966?", a:"Twister"},
   {c:'y1966', q:"Which film won the Academy Award for Best Picture for 1966?", a:"A Man for All Seasons"},
+  {c:'baseball', q:"Which Los Angeles team did the Baltimore Orioles sweep to win the 1966 World Series?", a:"The Dodgers", f:"The Orioles won in four straight games."},
   {c:'y1966', q:"Roughly what did an average London, Ontario home cost in 1966?", a:"About $16,000", f:"Mid-sized Ontario cities ran well below Toronto prices."},
   {c:'y1966', q:"Roughly what was the average Canadian family's income in 1966?", a:"About $6,700 a year", f:"A little higher here in Ontario than the national average."},
   {c:'y1966', q:"Which Canadian team won the Stanley Cup in 1966?", a:"The Montreal Canadiens"},
@@ -336,14 +337,10 @@ const QUESTIONS = [
   {c:'y1966', q:"Which knee-high, flat-heeled boot became a 1966 fashion craze?", a:"Go-go boots"},
   {c:'y1966', q:"Which Beatles album, featuring \"Eleanor Rigby\" and \"Yellow Submarine\", came out in 1966?", a:"Revolver"},
   {c:'y1966', q:"Which campy superhero TV series, starring Adam West, first aired in 1966?", a:"Batman", f:"Holy anniversary, Batman!"},
+  {c:'baseball', q:"How many Major League Baseball teams were based in Canada in 1966?", a:"None (zero)", f:"Montreal's Expos didn't arrive until 1969."},
   {c:'y1966', q:"Which national program, still on every Canadian's paycheque today, began on January 1, 1966?", a:"The Canada Pension Plan (CPP)"},
   {c:'y1966', q:"In 1966 unmanned spacecraft made the first gentle (\"soft\") landings on which world?", a:"The Moon", f:"The Soviet Luna 9 touched down in February 1966."},
   {c:'y1966', q:"On July 8, 1966, the McMichael Canadian Art Collection opened its doors to the public. In which Canadian province?", a:"Ontario", f:"In Kleinburg, north of Toronto, it became a premier home for the Group of Seven's paintings."},
-  {c:'y1966', q:"Which pop artist was famous for his brightly coloured 1960s silkscreen portraits of Marilyn Monroe?", a:"Andy Warhol", f:"A fitting nod to our own Marilyn."},
-
-  // ---------- Take Me Out to the Ball Game (1966) ----------
-  {c:'baseball', q:"Which Los Angeles team did the Baltimore Orioles sweep to win the 1966 World Series?", a:"The Dodgers", f:"The Orioles won in four straight games."},
-  {c:'baseball', q:"How many Major League Baseball teams were based in Canada in 1966?", a:"None (zero)", f:"Montreal's Expos didn't arrive until 1969."},
 ];
 
 const CAT_LABEL = {
@@ -432,7 +429,7 @@ function renderTitle(){
 function renderQuestion(item){
   topbar.classList.remove('hidden');
   progWrap.classList.remove('hidden');
-  const {c,q} = item.data;
+  const {q} = item.data;
   counterEl.textContent = `Question ${item.index+1} of ${totalQuestions}`;
   const thinkBlock = (mode==='auto')
     ? `<div id="think">
@@ -446,7 +443,6 @@ function renderQuestion(item){
     : `<div class="tap-hint">Tap for the answer &rsaquo;</div>`;
   stage.innerHTML = `
     <div class="card">
-      <span class="badge ${c}">${esc(CAT_LABEL[c])}</span>
       <span class="qnum">Question ${item.index+1}</span>
       <div class="question">${esc(q)}</div>
       ${thinkBlock}
@@ -455,11 +451,10 @@ function renderQuestion(item){
 }
 
 function renderAnswer(item){
-  const {c,a,f} = item.data;
+  const {a,f} = item.data;
   counterEl.textContent = `Question ${item.index+1} of ${totalQuestions}`;
   stage.innerHTML = `
     <div class="card">
-      <span class="badge ${c}">${esc(CAT_LABEL[c])}</span>
       <div class="answer-label">The Answer</div>
       <div class="answer">${esc(a)}</div>
       ${f ? `<div class="fact">${esc(f)}</div>` : ``}

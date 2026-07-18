@@ -395,6 +395,7 @@ let SEQUENCE = [];
 let pos = -1;            // index into SEQUENCE (-1 = title)
 let mode = 'auto';       // 'auto' = timed; 'manual' = tap to advance
 let paused = false;
+let lastDir = 1;         // direction of travel: 1 = forward, -1 = back
 let timer = null;        // setTimeout handle for auto-advance
 let ringRAF = null;      // requestAnimationFrame for countdown ring
 let slotStart = 0;       // when current slot began (performance.now)
@@ -498,10 +499,14 @@ function renderPhoto(item){
   img.src = encodeURI(srcs[0]);
 }
 
-/* A photo couldn't be loaded from any source: skip it so the
-   trivia keeps flowing (only skips while playing, not when paused). */
-function onPhotoFail(item){
-  if(!paused) show(pos+1);
+/* A photo couldn't be loaded: skip it in the direction we're travelling
+   so it keeps flowing forward, but skips backward when you pressed Back
+   (otherwise Back would bounce you straight off the empty photo again). */
+function onPhotoFail(){
+  if(paused) return;
+  const target = pos + lastDir;
+  if(target < 0) return;        // nothing before the first slide
+  show(target);
 }
 
 function renderPlaceholderPhoto(n){
@@ -569,7 +574,7 @@ function scheduleAdvance(ms){
   slotStart = performance.now();
   clearTimeout(timer);
   if(!paused){
-    timer = setTimeout(()=>show(pos+1), ms);
+    timer = setTimeout(()=>{ lastDir=1; show(pos+1); }, ms);
   }
 }
 
@@ -605,7 +610,7 @@ function togglePause(){
     // resume
     slotStart = performance.now();
     slotDuration = Math.max(0, slotRemaining);
-    timer = setTimeout(()=>show(pos+1), slotDuration);
+    timer = setTimeout(()=>{ lastDir=1; show(pos+1); }, slotDuration);
     // resume the ring if on a question
     const item = SEQUENCE[pos];
     if(item && item.type==='question'){
@@ -614,11 +619,11 @@ function togglePause(){
   }
 }
 
-function next(){ if(pos<0){start();return;} show(Math.min(pos+1, SEQUENCE.length)); }
-function prev(){ if(pos<=0) return; show(pos-1); }
+function next(){ if(pos<0){start();return;} lastDir=1; show(Math.min(pos+1, SEQUENCE.length)); }
+function prev(){ if(pos<=0) return; lastDir=-1; show(pos-1); }
 function revealAnswer(){
   const item = SEQUENCE[pos];
-  if(item && item.type==='question'){ show(pos+1); }
+  if(item && item.type==='question'){ lastDir=1; show(pos+1); }
 }
 
 function toast(msg){

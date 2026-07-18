@@ -2,16 +2,14 @@
 
 A full-screen, landscape trivia game built for the Wickerson 60th wedding
 anniversary party. On the start screen you choose how it plays, then it shows
-each question, reveals the answer, and shows a family photo, one after every
-question.
+each question and reveals the answer.
 
 ## Two ways to play (pick one on the start screen)
 
 - **Play automatically**: it runs on a timer, with a pause to think on each
-  question, then the answer, then a photo, all on its own. Good for hands-off.
-- **I'll tap to advance**: nothing moves until you tap. You control the
-  pacing, so tap for the answer, tap for the photo, tap for the next question.
-  Great for running it from your phone.
+  question, then the answer, all on its own. Good for hands-off.
+- **I'll tap to advance**: nothing moves until you tap. You control the pacing,
+  so tap for the answer, tap for the next question. Great from your phone.
 
 ## How to run it at the party
 
@@ -47,42 +45,13 @@ to advance. If you have a keyboard:
 
 ## The questions
 
-40 easy, fun questions across three themes, tuned for a Canadian audience:
+20 easy, fun questions all about **1966**, the year Peter and Marilyn married,
+tuned for a Canadian audience: world events, Canada, TV and film, music, a
+science discovery, an invention, a bit of painting, and a couple of 1966
+baseball facts, all mixed together.
 
-- **The Swinging Sixties**: general 1960s facts with Canadian touches
-- **Take Me Out to the Ball Game**: baseball basics and highlights
-- **A Little Ancient Greece**: a few gentle ancient-history questions
-
-To edit or add questions, open `index.html` and look for the `QUESTIONS`
-list near the top of the `<script>` section.
-
-## Your family photos
-
-The game shows **one family photo after each question** (40 questions, so up
-to 40 photos). Photos are loaded from local files in the **`photos/`** folder,
-so everything runs offline with nothing streaming from the web.
-
-### Adding the photos
-
-1. In Google Drive, open the **Wickerson_Anniversary_Pics** folder and
-   **Download** the photos you want (Drive gives you a zip).
-2. Unzip and drop the image files into the **`photos/`** folder next to
-   `index.html`, keeping their original names.
-3. Open **`photos.js`**. It already lists all 100 filenames from the folder.
-   Delete down to the ~40 you want, in the order you'd like them to appear.
-   Photo 1 shows after question 1, photo 2 after question 2, and so on.
-
-That's it. No internet needed on the night.
-
-### Trimming, reordering and captions
-
-- **Fewer photos:** delete lines in `photos.js`. Only the first 40 are shown
-  (one per question); anything beyond that is ignored.
-- **Reorder:** move lines up or down.
-- **Captions:** add text between the quotes, e.g.
-  `{ file:"IMG_6446.jpeg", caption:"The wedding, 1966" },`
-- A photo listed in `photos.js` but not found in the `photos/` folder is
-  simply skipped, so a typo or missing file won't break the game.
+To edit, reword or add questions, open `index.html` and look for the
+`QUESTIONS` list near the top of the `<script>` section.
 
 ## Adjusting the automatic timing
 
@@ -94,7 +63,6 @@ top of the script:
 const CONFIG = {
   thinkSeconds:  20,  // seconds to think about each question
   answerSeconds:  9,  // seconds the answer stays up
-  photoSeconds:   8,  // seconds each photo stays up
   titleAutostart: 0,  // 0 = wait for the start screen; e.g. 5 = auto-start
 };
 ```

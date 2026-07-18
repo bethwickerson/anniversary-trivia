@@ -12,11 +12,6 @@
     --gold-soft:#f3e2b8;
     --cream:#fdf6e8;
     --ink:#0b1c2c;
-    --sixties:#ff8f6b;   /* coral */
-    --baseball:#7fd68a;  /* green */
-    --greek:#8ec7ff;     /* blue */
-    --y1966:#f2a7c3;     /* rose */
-    --photo:#e8c477;     /* gold */
     --shadow:rgba(0,0,0,.35);
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -83,25 +78,6 @@
   }
   #progress-fill{height:100%;width:0;background:var(--gold);border-radius:99px}
 
-  /* ---- category badge ---- */
-  .badge{
-    display:inline-block;
-    padding:.5em 1.4em;
-    border-radius:99px;
-    font-family:"Helvetica Neue",Arial,sans-serif;
-    font-weight:700;
-    font-size:clamp(14px,1.7vw,24px);
-    letter-spacing:.16em;
-    text-transform:uppercase;
-    color:var(--ink);
-    margin-bottom:clamp(20px,3.4vh,46px);
-    box-shadow:0 8px 26px var(--shadow);
-  }
-  .badge.sixties{background:var(--sixties)}
-  .badge.baseball{background:var(--baseball)}
-  .badge.greek{background:var(--greek)}
-  .badge.y1966{background:var(--y1966)}
-
   .qnum{
     display:block;
     font-family:"Helvetica Neue",Arial,sans-serif;
@@ -158,39 +134,6 @@
     font-family:"Helvetica Neue",Arial,sans-serif;
     font-size:clamp(13px,1.6vw,20px);
     letter-spacing:.14em;text-transform:uppercase;color:var(--gold);opacity:.85;
-  }
-
-  /* ---- photo slide ---- */
-  .photo-card{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(16px,3vh,34px)}
-  .photo-frame{
-    background:var(--cream);
-    padding:clamp(10px,1.4vw,20px);
-    border-radius:6px;
-    box-shadow:0 24px 60px var(--shadow);
-    max-width:min(84vw,1200px);
-    max-height:64vh;
-    transform:rotate(-1.2deg);
-  }
-  .photo-frame img{
-    display:block;
-    max-width:100%;
-    max-height:58vh;
-    border-radius:2px;
-    object-fit:contain;
-  }
-  .photo-caption{
-    font-style:italic;
-    font-size:clamp(20px,2.6vw,38px);
-    color:var(--gold-soft);
-    text-shadow:0 2px 14px var(--shadow);
-  }
-  .photo-placeholder{
-    width:min(70vw,900px);height:48vh;
-    display:flex;align-items:center;justify-content:center;text-align:center;
-    background:repeating-linear-gradient(45deg,rgba(255,255,255,.05),rgba(255,255,255,.05) 18px,rgba(255,255,255,.09) 18px,rgba(255,255,255,.09) 36px);
-    border:2px dashed rgba(232,196,119,.5);border-radius:8px;
-    color:var(--gold);font-family:"Helvetica Neue",Arial,sans-serif;
-    font-size:clamp(16px,2vw,26px);letter-spacing:.05em;padding:2em;
   }
 
   /* ---- title & end screens ---- */
@@ -303,7 +246,6 @@
     <button id="cnext" aria-label="Next">&rarr;</button>
   </div>
 
-<script src="photos.js"></script>
 <script>
 /* ============================================================
    Peter & Marilyn Wickerson · 60th Anniversary Trivia
@@ -313,7 +255,6 @@
 const CONFIG = {
   thinkSeconds:  20,   // time to think about each question
   answerSeconds:  9,   // time the answer stays on screen
-  photoSeconds:   8,   // time each family photo stays on screen
   titleAutostart: 0,   // 0 = wait for Start click; >0 = auto-start after N seconds
 };
 
@@ -345,35 +286,12 @@ const QUESTIONS = [
   {c:'y1966', q:"On July 8, 1966, the McMichael Canadian Art Collection opened its doors to the public. In which Canadian province?", a:"Ontario", f:"In Kleinburg, north of Toronto, it became a premier home for the Group of Seven's paintings."},
 ];
 
-const CAT_LABEL = {
-  y1966:    "The World in 1966",
-  baseball: "Take Me Out to the Ball Game",
-};
-
-/* ---- Photos --------------------------------------------------
-   window.PHOTOS is defined in photos.js as an array of
-   { file, caption }.  One photo is shown after each question.
-   A photo that isn't in the photos/ folder is simply skipped.
-----------------------------------------------------------------*/
-const PHOTOS = (window.PHOTOS && window.PHOTOS.length) ? window.PHOTOS : [];
-
-/* ---- Build the play sequence ---------------------------------
-   Interleave family photos evenly between the Q&A pairs so the
-   whole set of photos is spread across the game.
-----------------------------------------------------------------*/
+/* ---- Build the play sequence: each question then its answer ---- */
 function buildSequence(){
   const seq = [];
-  const nQ = QUESTIONS.length;
-  // Show ONE family photo after each question (when one is listed for
-  // that slot). Photo i follows question i, so list them in the order
-  // you'd like them to appear. Extra photos beyond the number of
-  // questions are not shown.
-  for(let i=0;i<nQ;i++){
+  for(let i=0;i<QUESTIONS.length;i++){
     seq.push({type:'question', data:QUESTIONS[i], index:i});
     seq.push({type:'answer',   data:QUESTIONS[i], index:i});
-    if(i < PHOTOS.length){
-      seq.push({type:'photo', data:PHOTOS[i], index:i});
-    }
   }
   return seq;
 }
@@ -464,61 +382,6 @@ function renderAnswer(item){
     </div>`;
 }
 
-/* The photo file to show. Photos live locally in the photos/ folder
-   next to index.html, so it all runs offline with nothing to break. */
-function photoSources(d){
-  if(d.src)  return [d.src];
-  if(d.file) return ['photos/' + d.file];
-  return [];
-}
-
-function renderPhoto(item){
-  topbar.classList.remove('hidden');
-  const d = item.data;
-  const caption = d.caption || '';
-  const srcs = photoSources(d);
-  counterEl.textContent = `A Family Memory`;
-  const cap = caption ? `<div class="photo-caption">${esc(caption)}</div>` : '';
-  stage.innerHTML = `
-    <div class="card photo-card">
-      <div class="photo-frame">
-        <img id="pimg" alt="${esc(caption||'Wickerson family photo')}">
-      </div>
-      ${cap}
-    </div>`;
-  const img = document.getElementById('pimg');
-  if(!srcs.length){ onPhotoFail(item); return; }
-  let tryIdx = 0;
-  img.onerror = () => {
-    tryIdx++;
-    if(tryIdx < srcs.length){ img.src = encodeURI(srcs[tryIdx]); }
-    else { onPhotoFail(item); }
-  };
-  img.src = encodeURI(srcs[0]);
-}
-
-/* A photo couldn't be loaded: skip it in the direction we're travelling
-   so it keeps flowing forward, but skips backward when you pressed Back
-   (otherwise Back would bounce you straight off the empty photo again). */
-function onPhotoFail(){
-  if(paused) return;
-  const target = pos + lastDir;
-  if(target < 0) return;        // nothing before the first slide
-  show(target);
-}
-
-function renderPlaceholderPhoto(n){
-  topbar.classList.remove('hidden');
-  counterEl.textContent = `A Family Memory`;
-  stage.innerHTML = `
-    <div class="card photo-card">
-      <div class="photo-placeholder">
-        Family photo #${n}<br><br>
-        <small>Add photos in <b>photos.js</b> and they'll appear here between questions.</small>
-      </div>
-    </div>`;
-}
-
 function renderEnd(){
   topbar.classList.add('hidden');
   progWrap.classList.add('hidden');
@@ -558,8 +421,7 @@ function show(i){
   const item = SEQUENCE[pos];
   let dur;
   if(item.type==='question'){ renderQuestion(item); dur = CONFIG.thinkSeconds*1000; }
-  else if(item.type==='answer'){ renderAnswer(item); dur = CONFIG.answerSeconds*1000; }
-  else { renderPhoto(item); dur = CONFIG.photoSeconds*1000; }
+  else { renderAnswer(item); dur = CONFIG.answerSeconds*1000; }
 
   updateProgress();
   if(mode==='auto') scheduleAdvance(dur);
